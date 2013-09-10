@@ -8,19 +8,11 @@ from fabric.state import env
 import  util
 
 
-#env.hosts    = ["clj-pc-077.3pillar.corp"]
-#env.user     = "pps"
-#env.password = "3pg"
+env.hosts    = util.read_config_map('authentication')['ssh_hosts'].split(",")
+env.user     = util.read_config_map('authentication')['ssh_username']
+env.password = util.read_config_map('authentication')['ssh_password']
 
     
-#===============================================================================
-# init args - may not be needed when running from cmd line
-#===============================================================================
-def init(host,user):
-    env.hosts = []
-    env.hosts.append(host)
-    env.user= user
-
 #===============================================================================
 # main desploy task:
 #            stop app server

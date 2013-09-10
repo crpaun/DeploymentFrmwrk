@@ -1,7 +1,7 @@
 import ConfigParser
 from urllib2 import urlopen
 import os
-from fabric.operations import run, put
+from fabric.operations import run, put, sudo
 
 import jenkins
 from nexus import NexusApiClient
@@ -17,7 +17,7 @@ CONFIG_FILE = 'config.ini'
 #===============================================================================
 def check_deployment_status(host):
     try:
-        urlStr ='http://' + host + ':' + read_config_map('deployment_env')['tomcat_port'] + read_config_map('deployment_env')['test_url'] 
+        urlStr = read_config_map('tomcat')['tomcat_test_url'] 
         fileHandle = urlopen(urlStr)
         code = fileHandle.getcode()
         if(code is 200):
@@ -46,15 +46,13 @@ def seed_jenkins_jobs():
 # Retrieve deployment artifacts from nexus
 #===============================================================================
 def fetch_deployment_from_nexus(artifact_type):
-    nexus_url = read_config_map('nexus')['nexus_url']
-    group_id = read_config_map('maven')['groupId']
-    artifact_id = read_config_map('maven')['artifactId']
-    snapshot_version = read_config_map('maven')['snapshot_version']
-    packaging = read_config_map('maven')['packaging']
-    tomcat_home = read_config_map('deployment_env')['tomcat_home']
-    tomcat_deployment_dir = read_config_map('deployment_env')['tomcat_deployment_dir']
-    deployment_path = tomcat_home + tomcat_deployment_dir
-    home_directory = read_config_map('deployment_env')['home_directory']
+    nexus_url = read_config_map('maven')['nexus_url']
+    group_id = read_config_map('maven')['maven_groupId']
+    artifact_id = read_config_map('maven')['maven_artifactId']
+    snapshot_version = read_config_map('maven')['maven_snapshot_version']
+    packaging = read_config_map('maven')['maven_packaging']
+    tomcat_home = read_config_map('tomcat')['tomcat_home']
+    deployment_path = tomcat_home + "/webapps/"
     
     
     nexus_cfg = NexusApiClient(nexus_url, artifact_id, group_id, snapshot_version, artifact_type,  packaging)
@@ -65,8 +63,8 @@ def fetch_deployment_from_nexus(artifact_type):
 
     #run('wget --content-disposition -P ' + home_directory+deployment_path + ' \'' + nexus_url + '\'' )
     wget_cmd = 'wget  -O ' + deployment_path + artifact_id+'.'+packaging + ' \'' + nexus_url + '\''
-    print wget_cmd
-    run(wget_cmd)
+    #print wget_cmd
+    sudo(wget_cmd, pty=True)
     
 #===============================================================================
 # Tomcat start/stop/cleanup commands
@@ -76,24 +74,22 @@ def tomcat_startup(verbose=False):
     """
     startup tomcat instance.
     """
-    tomcat_scripts = read_config_map('deployment_env')['tomcat_scripts']
-    run(tomcat_scripts+'/startup.sh', pty=verbose)
+    sudo('service tomcat7 restart', pty=True)
     
 def tomcat_shutdown(verbose=False):
     """
     shut down tomcat instance.
     """
-    tomcat_scripts = read_config_map('deployment_env')['tomcat_scripts']
-    run(tomcat_scripts+'/shutdown.sh', pty=verbose)
+    sudo('service tomcat7 stop', pty=True)
     
 def tomcat_cleanup(verbose=False):
     """
     cleanup tomcat instance.
     """
-    tomcat_home = read_config_map('deployment_env')['tomcat_home']
-    run('rm -rf ' + tomcat_home+'/work', pty=verbose)
-    run('rm -rf ' + tomcat_home+'/webapps/' + read_config_map('maven')['artifactId'] , pty=verbose)
-    run('rm -rf ' + tomcat_home+'/webapps/' + read_config_map('maven')['artifactId']+"."+ read_config_map('maven')['packaging'] , pty=verbose)
+    tomcat_home = read_config_map('tomcat')['tomcat_home']
+    sudo('rm -rf ' + tomcat_home+'/work/Catalina', pty=True)
+    sudo('rm -rf ' + tomcat_home+'/webapps/' + read_config_map('maven')['maven_artifactId'] , pty=True)
+    sudo('rm -rf ' + tomcat_home+'/webapps/' + read_config_map('maven')['maven_artifactId']+"."+ read_config_map('maven')['maven_packaging'] , pty=True)
     
 #===============================================================================
 # db specific -  copy sql script files to temporary remote location and executes it 
