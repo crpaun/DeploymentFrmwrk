@@ -52,8 +52,8 @@ def app_server_cleanup():
 #===============================================================================
 # artifact_type can either be SNAPSHOT or RELEASE
 #===============================================================================
-def fetch_deployment_from_repository(deployment_type):
-    util.fetch_deployment_from_nexus(deployment_type)
+def fetch_deployment_from_repository(deployment_type,version):
+    util.fetch_deployment_from_nexus(deployment_type,version)
 
 #===============================================================================
 # check if application is running 

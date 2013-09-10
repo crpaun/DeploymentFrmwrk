@@ -45,20 +45,17 @@ def seed_jenkins_jobs():
 #===============================================================================
 # Retrieve deployment artifacts from nexus
 #===============================================================================
-def fetch_deployment_from_nexus(artifact_type):
+def fetch_deployment_from_nexus(artifact_type,version):
     nexus_url = read_config_map('maven')['nexus_url']
     group_id = read_config_map('maven')['maven_groupId']
     artifact_id = read_config_map('maven')['maven_artifactId']
-    snapshot_version = read_config_map('maven')['maven_snapshot_version']
-    release_version = read_config_map('maven')['maven_release_version']
+    #snapshot_version = read_config_map('maven')['maven_snapshot_version']
+    #release_version = read_config_map('maven')['maven_release_version']
     packaging = read_config_map('maven')['maven_packaging']
     tomcat_home = read_config_map('tomcat')['tomcat_home']
     deployment_path = tomcat_home + "/webapps/"
     
-    if artifact_type == 'SNAPSHOT':
-        nexus_cfg = NexusApiClient(nexus_url, artifact_id, group_id, snapshot_version, artifact_type,  packaging)
-    else:
-        nexus_cfg = NexusApiClient(nexus_url, artifact_id, group_id, release_version, artifact_type,  packaging)
+    nexus_cfg = NexusApiClient(nexus_url, artifact_id, group_id, version, artifact_type,  packaging)
         
     nexus_url = nexus_cfg.build_url()
     
