@@ -50,12 +50,16 @@ def fetch_deployment_from_nexus(artifact_type):
     group_id = read_config_map('maven')['maven_groupId']
     artifact_id = read_config_map('maven')['maven_artifactId']
     snapshot_version = read_config_map('maven')['maven_snapshot_version']
+    release_version = read_config_map('maven')['maven_release_version']
     packaging = read_config_map('maven')['maven_packaging']
     tomcat_home = read_config_map('tomcat')['tomcat_home']
     deployment_path = tomcat_home + "/webapps/"
     
-    
-    nexus_cfg = NexusApiClient(nexus_url, artifact_id, group_id, snapshot_version, artifact_type,  packaging)
+    if artifact_type == 'SNAPSHOT':
+        nexus_cfg = NexusApiClient(nexus_url, artifact_id, group_id, snapshot_version, artifact_type,  packaging)
+    else:
+        nexus_cfg = NexusApiClient(nexus_url, artifact_id, group_id, release_version, artifact_type,  packaging)
+        
     nexus_url = nexus_cfg.build_url()
     
     if exists(deployment_path, use_sudo=True):
