@@ -1,4 +1,4 @@
-use hdm_db1; 
+use hdm_db; 
 
 CREATE TABLE QRTZ_JOB_DETAILS
   (

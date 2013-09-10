@@ -1,4 +1,4 @@
-use hdm_db1;
+use hdm_db;
 
 CREATE TABLE brands(
 id_brand INTEGER NOT NULL AUTO_INCREMENT,

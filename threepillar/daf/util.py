@@ -9,7 +9,7 @@ from fabric.contrib.files import exists
 
 __author__ = 'asfat cpaun'
 
-CONFIG_FILE = 'config.ini'
+CONFIG_FILE = os.path.abspath(os.path.join(os.path.dirname( __file__ ), '..', '..')) + '/config.ini'
 
 
 #===============================================================================
@@ -95,19 +95,20 @@ def tomcat_cleanup(verbose=False):
 # db specific -  copy sql script files to temporary remote location and executes it 
 #===============================================================================
 def setup_mysql_db():
-    #copy sql script files to remote location 
-    put('db_scripts_tmp', '~')
+    #copy sql script files to remote location
+    parent_folder = os.path.abspath(os.path.join(os.path.dirname( __file__ ), '..', '..')) 
+    put(parent_folder + '/db_scripts_tmp', '~')
     #execute scripts
     sql_cfg = read_config_map('mysql')
     sql_files = sql_cfg['sql_scripts'].split(",")
     for sql_file in sql_files:
-        command = 'mysql -h%s -u%s -p%s --default-character-set=UTF8 < %s'\
+        command = 'mysql -h %s -u%s -p%s --default-character-set=UTF8 < %s'\
             % (sql_cfg['db_host'],
-            sql_cfg['db_user'],
-            sql_cfg['db_passwd'],
+            sql_cfg['db_username'],
+            sql_cfg['db_password'],
             '~/db_scripts_tmp'+ '/'+sql_file)
-        run(command)
-    run('rm -rf ~/db_scripts_tmp')
+        sudo(command, pty=True)
+    sudo('rm -rf ~/db_scripts_tmp', pty=True)
 
 #===============================================================================
 # plumbing
@@ -139,10 +140,6 @@ def read_config_value(host_group):
 def read_config_map(host_group):
     config = get_configparser()
     config.read(CONFIG_FILE)
-
-    #print(os.getcwd())
-    #print(config.sections())
- 
     return dict(config.items(host_group))
 
 

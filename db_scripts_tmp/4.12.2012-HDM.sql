@@ -1,6 +1,6 @@
 -- MySQL dump 10.13  Distrib 5.5.28, for Linux (x86_64)
 --
--- Host: localhost    Database: hdm_db1
+-- Host: localhost    Database: hdm_db
 -- ------------------------------------------------------
 -- Server version	5.5.28
 
@@ -19,7 +19,7 @@
 -- Table structure for table `QRTZ_PAUSED_TRIGGER_GRPS`
 --
 
-use hdm_db1;
+use hdm_db;
 DROP TABLE IF EXISTS `QRTZ_PAUSED_TRIGGER_GRPS`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
