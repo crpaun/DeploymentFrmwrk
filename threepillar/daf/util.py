@@ -51,8 +51,11 @@ def fetch_deployment_from_nexus(artifact_type):
     artifact_id = read_config_map('maven')['artifactId']
     snapshot_version = read_config_map('maven')['snapshot_version']
     packaging = read_config_map('maven')['packaging']
-    deployment_path = read_config_map('nexus')['deployment_path']
+    tomcat_home = read_config_map('deployment_env')['tomcat_home']
+    tomcat_deployment_dir = read_config_map('deployment_env')['tomcat_deployment_dir']
+    deployment_path = tomcat_home + tomcat_deployment_dir
     home_directory = read_config_map('deployment_env')['home_directory']
+    
     
     nexus_cfg = NexusApiClient(nexus_url, artifact_id, group_id, snapshot_version, artifact_type,  packaging)
     nexus_url = nexus_cfg.build_url()
@@ -61,7 +64,7 @@ def fetch_deployment_from_nexus(artifact_type):
         run('mkdir -p ' + deployment_path)
 
     #run('wget --content-disposition -P ' + home_directory+deployment_path + ' \'' + nexus_url + '\'' )
-    wget_cmd = 'wget  -O ' + home_directory+deployment_path + artifact_id+'.'+packaging + ' \'' + nexus_url + '\''
+    wget_cmd = 'wget  -O ' + deployment_path + artifact_id+'.'+packaging + ' \'' + nexus_url + '\''
     print wget_cmd
     run(wget_cmd)
     
@@ -73,15 +76,15 @@ def tomcat_startup(verbose=False):
     """
     startup tomcat instance.
     """
-    tomcat_home = read_config_map('deployment_env')['tomcat_home']
-    run(tomcat_home+'/bin/startup.sh', pty=verbose)
+    tomcat_scripts = read_config_map('deployment_env')['tomcat_scripts']
+    run(tomcat_scripts+'/startup.sh', pty=verbose)
     
 def tomcat_shutdown(verbose=False):
     """
     shut down tomcat instance.
     """
-    tomcat_home = read_config_map('deployment_env')['tomcat_home']
-    run(tomcat_home+'/bin/shutdown.sh', pty=verbose)
+    tomcat_scripts = read_config_map('deployment_env')['tomcat_scripts']
+    run(tomcat_scripts+'/shutdown.sh', pty=verbose)
     
 def tomcat_cleanup(verbose=False):
     """
