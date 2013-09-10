@@ -20,10 +20,10 @@ env.password = util.read_config_map('authentication')['ssh_password']
 #            fetch deployment artifacts
 #            start app server    
 #===============================================================================
-def deploy(deployment_type):
+def deploy(deployment_type,version):
     app_server_shutdown()
     app_server_cleanup()
-    fetch_deployment_from_repository(deployment_type)
+    fetch_deployment_from_repository(deployment_type,version)
     app_server_startup()
     check_deployment_status()
     
