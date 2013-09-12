@@ -6,6 +6,7 @@ from fabric.operations import run, put, sudo
 import jenkins
 from nexus import NexusApiClient
 from fabric.contrib.files import exists
+from glob import glob
 
 __author__ = 'asfat cpaun'
 
@@ -97,20 +98,37 @@ def tomcat_cleanup(verbose=False):
 #===============================================================================
 def setup_mysql_db():
     #copy sql script files to remote location
-    parent_folder = os.path.abspath(os.path.join(os.path.dirname( __file__ ), '..', '..')) 
-    put(parent_folder + '/db_scripts_tmp', '~')
-    #execute scripts
+    #parent_folder = os.path.abspath(os.path.join(os.path.dirname( __file__ ), '..', '..'))
+    #put(parent_folder + '/db_scripts_tmp', '~')
     sql_cfg = read_config_map('mysql')
+    script_folder = sql_cfg['sql_script_folder'] 
+    put(script_folder, '~')
+    #execute scripts
+    
     sql_files = sql_cfg['sql_scripts'].split(",")
     for sql_file in sql_files:
         command = 'mysql -h %s -u%s -p%s --default-character-set=UTF8 < %s'\
             % (sql_cfg['db_host'],
             sql_cfg['db_username'],
             sql_cfg['db_password'],
-            '~/db_scripts_tmp'+ '/'+sql_file)
+            script_folder+ '/'+sql_file)
         sudo(command, pty=True)
-    sudo('rm -rf ~/db_scripts_tmp', pty=True)
+    sudo('rm -rf ' + script_folder, pty=True)
 
+
+def upload_static_content(remote_folder):
+    local_folders = read_config_map('static_content')['local_folders'].split(",")
+    
+    sudo('mkdir -p ' + remote_folder, pty=True)
+
+    for local_folder in local_folders:
+        ret = put(local_folder, remote_folder, use_sudo=True)
+
+def handle_exception(e,msg):
+    print '=========================================================='
+    print msg 
+    print e
+    print '=========================================================='
 #===============================================================================
 # plumbing
 #===============================================================================

@@ -33,56 +33,71 @@ def deploy(deployment_type,version):
 # Starts tomcat on deployment server
 #===============================================================================
 def app_server_startup():
-    """
-    startup tomcat instance.
-    """
-    util.tomcat_startup(verbose=False)
+    try:
+        util.tomcat_startup(verbose=False)
+    except Exception as e:
+        util.handle_exception(e, 'Error starting up application server:')    
 #===============================================================================
 # Stops tomcat on deployment server
 #===============================================================================
 def app_server_shutdown():
-    """
-    shut down tomcat instance.
-    """
-    util.tomcat_shutdown(verbose=False)
+    try:
+        util.tomcat_shutdown(verbose=False)
+    except Exception as e:
+        util.handle_exception(e, 'Error shutting down application server:') 
 #===============================================================================
 # Remove tomcat working items
 #===============================================================================
 def app_server_cleanup():
-    """
-    startup tomcat instance.
-    """
-    util.tomcat_cleanup(verbose=False)
+    try:
+        util.tomcat_cleanup(verbose=False)
+    except Exception as e:
+        util.handle_exception(e, 'Error performing application server cleanup tasks:')
+    
 #===============================================================================
 # copy .war from nexus to the deployment server 
 #     deployment_type can either be SNAPSHOT or RELEASE
 #     version must match the one in maven;s pom.xml
 #===============================================================================
 def fetch_deployment_from_repository(deployment_type,version):
-    util.fetch_deployment_from_nexus(deployment_type,version)
+    try:
+        util.fetch_deployment_from_nexus(deployment_type,version)
+    except Exception as e:
+        util.handle_exception(e, 'Error retrieving deployment artifacts ' + deployment_type + ', ' +version + ':')    
+    
+#===============================================================================
+# executes all sql scripts located inside db_scripts_tmp  
+#===============================================================================
+def reset_db():
+    try:
+        util.setup_mysql_db()
+    except Exception as e:
+        util.handle_exception(e, 'Error executing sql scripts:')
+
 #===============================================================================
 # check if application is up and running 
 #===============================================================================
 def check_deployment_status():
     util.check_deployment_status(env.hosts[0])
     
+    
 #===============================================================================
-# executes all sql scripts located inside db_scripts_tmp  
+# upload static content remotely - copies recursively local folders to remote
+# folder
 #===============================================================================
-def reset_db():
-    util.setup_mysql_db()
-
+def upload_static_content(remote_path):
+    try:
+        util.upload_static_content(remote_path)
+    except Exception as e:
+        util.handle_exception(e, 'Error uploading content:')
+                
 #===============================================================================
 # seed jenkins job from xml config file
 #===============================================================================
-
-
-
-
 def seed_jenkins_jobs():
-    util.seed_jenkins_jobs()
-
-
+    #util.seed_jenkins_jobs()
+    print 'Not implemented' 
+    
 if __name__ == '__main__':
     import sys
     from fabric.main import main
