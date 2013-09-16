@@ -64,7 +64,7 @@ def fetch_deployment_from_repository(version):
     try:
         util.fetch_deployment_from_nexus(version)
     except Exception as e:
-        util.handle_exception(e, 'Error retrieving deployment artifacts ' + deployment_type + ', ' +version + ':')    
+        util.handle_exception(e, 'Error retrieving deployment artifacts '  + ', ' +version + ':')    
     
 #===============================================================================
 # executes all sql scripts located inside db_scripts_tmp  

@@ -81,26 +81,29 @@ class Util:
     # Retrieve deployment artifacts from nexus
     #===============================================================================
     def fetch_deployment_from_nexus(self,version):
-        nexus_url = self.read_config_map('maven')['nexus_url']
-        group_id = self.read_config_map('maven')['maven_groupId']
-        artifact_id = self.read_config_map('maven')['maven_artifactId']
-        #snapshot_version = self.read_config_map('maven')['maven_snapshot_version']
-        #release_version = self.read_config_map('maven')['maven_release_version']
-        packaging = self.read_config_map('maven')['maven_packaging']
-        tomcat_home = self.read_config_map('tomcat')['tomcat_home']
-        deployment_path = tomcat_home + "/webapps/"
+        try:
+            nexus_url = self.read_config_map('maven')['nexus_url']
+            group_id = self.read_config_map('maven')['maven_groupId']
+            artifact_id = self.read_config_map('maven')['maven_artifactId']
+            #snapshot_version = self.read_config_map('maven')['maven_snapshot_version']
+            #release_version = self.read_config_map('maven')['maven_release_version']
+            packaging = self.read_config_map('maven')['maven_packaging']
+            tomcat_home = self.read_config_map('tomcat')['tomcat_home']
+            deployment_path = tomcat_home + "/webapps/"
         
-        nexus_cfg = NexusApiClient(nexus_url, artifact_id, group_id, version, self.deployment_type,  packaging)
+            nexus_cfg = NexusApiClient(nexus_url, artifact_id, group_id, version, self.deployment_type,  packaging)
             
-        nexus_url = nexus_cfg.build_url()
+            nexus_url = nexus_cfg.build_url()
         
-        if exists(deployment_path, use_sudo=True):
-            run('mkdir -p ' + deployment_path)
+            if exists(deployment_path, use_sudo=True):
+                run('mkdir -p ' + deployment_path)
     
-        #run('wget --content-disposition -P ' + home_directory+deployment_path + ' \'' + nexus_url + '\'' )
-        wget_cmd = 'wget  -O ' + deployment_path + artifact_id+'.'+packaging + ' \'' + nexus_url + '\''
-        #print wget_cmd
-        sudo(wget_cmd, pty=True)
+            #run('wget --content-disposition -P ' + home_directory+deployment_path + ' \'' + nexus_url + '\'' )
+            wget_cmd = 'wget  -O ' + deployment_path + artifact_id+'.'+packaging + ' \'' + nexus_url + '\''
+            #print wget_cmd
+            sudo(wget_cmd, pty=True)
+        except Exception as e:              
+                self.upload_static_content()
         
     #===============================================================================
     # Tomcat start/stop/cleanup commands
