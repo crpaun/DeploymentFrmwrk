@@ -11,7 +11,7 @@ import urllib2
 
 __author__ = 'asfat cpaun'
 
-class Util:
+class DeploymentHandler:
 
     deployment_type = ''
     CONFIG_FILE_SNAP = os.path.abspath(os.path.join(os.path.dirname( __file__ ), '..', '..')) + '/config_snapshot.ini'
@@ -26,7 +26,7 @@ class Util:
     #===============================================================================
     def check_deployment_status(self):
         try:
-            urlStr = self.read_config_map('tomcat')['tomcat_test_url'] 
+            urlStr = self.read_config_map('test')['test_url'] 
             fileHandle = urlopen(urlStr)
             code = fileHandle.getcode()
             if(code is 200):
@@ -100,8 +100,10 @@ class Util:
     
             #run('wget --content-disposition -P ' + home_directory+deployment_path + ' \'' + nexus_url + '\'' )
             wget_cmd = 'wget  -O ' + deployment_path + artifact_id+'.'+packaging + ' \'' + nexus_url + '\''
-            #print wget_cmd
             sudo(wget_cmd, pty=True)
+            #if any static resources are specified it will all be copied over to the
+            #remote server
+            self.upload_static_content()
         except Exception as e:              
                 self.upload_static_content()
         
